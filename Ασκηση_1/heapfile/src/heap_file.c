@@ -103,7 +103,7 @@ HP_ErrorCode HP_InsertEntry(int fileDesc, Record record) {
 //        CALL_BF(BF_UnpinBlock(block));
 //        BF_Block_Destroy(&block);
 
-    }else if (blockSum >= 2){                                     // 2 or more means that the file already contains blocks with records
+    }else if (blockSum >= 2){                                       // 2 or more means that the file already contains blocks with records
         CALL_BF(BF_GetBlock(fileDesc, blockSum-1, block));          //blockSum-1 because we want to add at the end of the current block (if it fits)
 
         data = BF_Block_GetData(block);
@@ -133,7 +133,7 @@ HP_ErrorCode HP_InsertEntry(int fileDesc, Record record) {
     }else{
         return HP_ERROR;
     }
-    BF_Block_SetDirty(block);                                   //SetDirty and Unpin because we altered the Heap file (as instructed)
+    BF_Block_SetDirty(block);                                       //SetDirty and Unpin because we altered the Heap file (as instructed)
     CALL_BF(BF_UnpinBlock(block));
     BF_Block_Destroy(&block);
 
@@ -144,7 +144,7 @@ HP_ErrorCode HP_PrintAllEntries(int fileDesc, char *attrName, void* value) {
     //insert code here
     BF_Block *block;
 
-    int recordCounter = 0;                                        // keeps track of the number of records kept in a block
+    int recordCounter;                                                  // keeps track of the number of records kept in a block
     Record tmpRecord;
     char* data;
     int blockSum = 0;
@@ -153,40 +153,39 @@ HP_ErrorCode HP_PrintAllEntries(int fileDesc, char *attrName, void* value) {
     if (blockSum >= 2){
         BF_Block_Init(&block);
 
-        for( int i = 1; i < blockSum; i++){                         // start from i = 1 because i = 0 contains Heap flag
+        for( int i = 1; i < blockSum; i++){                             // search every block in Heap file. Start from i = 1 because i = 0 contains Heap flag
             CALL_BF(BF_GetBlock(fileDesc , i , block));
             data = BF_Block_GetData(block);
 
-            memcpy(&recordCounter , data ,sizeof(int));               // get the number of records this block holds
-            data += sizeof(int);
+            memcpy(&recordCounter , data ,sizeof(int));                 // get the number of records this block holds
+            data += sizeof(int);                                        // set pointer at first record
 
-            for( int j = 0; j < recordCounter; j++) {
+            for( int j = 0; j < recordCounter; j++) {                   // for every record on this block
                 memcpy(&tmpRecord, data, sizeof(Record));
 
-                if (&value == NULL) {
+                if (value == NULL) {
                     printf("%d,\"%s\",\"%s\",\"%s\"\n", tmpRecord.id, tmpRecord.name, tmpRecord.surname,
                            tmpRecord.city);
 
                 } else {
 
                     if (memcmp(attrName, "id", sizeof(char)) == 0) {
-                        if (memcmp(&tmpRecord.id, value, sizeof(tmpRecord.id))) {
+                        if (memcmp(&tmpRecord.id, value, sizeof(tmpRecord.id)) == 0) {
                             printf("%d,\"%s\",\"%s\",\"%s\"\n", tmpRecord.id, tmpRecord.name, tmpRecord.surname,
                                    tmpRecord.city);
                         }
                     } else if (memcmp(attrName, "name", sizeof(char)) == 0) {
-                        if (memcmp(&tmpRecord.name, value, sizeof(char))) {
+                        if (memcmp(&tmpRecord.name, value, sizeof(char)) == 0) {
                             printf("%d,\"%s\",\"%s\",\"%s\"\n", tmpRecord.id, tmpRecord.name, tmpRecord.surname,
                                    tmpRecord.city);
                         }
                     } else if (memcmp(attrName, "surname", sizeof(char)) == 0) {
-                        if (memcmp(&tmpRecord.surname, value, sizeof(char))) {
+                        if (memcmp(&tmpRecord.surname, value, sizeof(char)) == 0) {
                             printf("%d,\"%s\",\"%s\",\"%s\"\n", tmpRecord.id, tmpRecord.name, tmpRecord.surname,
                                    tmpRecord.city);
                         }
                     } else if (memcmp(attrName, "city", sizeof(char)) == 0) {
-
-                        if (memcmp(&tmpRecord.city, value, sizeof(char))) {
+                        if (memcmp(&tmpRecord.city, value, sizeof(char)) == 0) {
                             printf("%d,\"%s\",\"%s\",\"%s\"\n", tmpRecord.id, tmpRecord.name, tmpRecord.surname,
                                    tmpRecord.city);
                         }
@@ -203,7 +202,6 @@ HP_ErrorCode HP_PrintAllEntries(int fileDesc, char *attrName, void* value) {
     }else {                                                       // if number of blocks is smaller than 2 then its empty and we have nothing to print
         printf("No Records exist!");
         return  HP_ERROR;
-
     }
 
     BF_Block_Destroy(&block);
