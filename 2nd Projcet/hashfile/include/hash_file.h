@@ -22,8 +22,6 @@ typedef struct hash_node {
 typedef struct metadata{
     char hashFlag[];
     int bucketSum;
-    int bucketLoad;
-    int bucketMaxLoad;
 }metadata;
 /*
  * Η συνάρτηση HT_Init χρησιμοποιείται για την αρχικοποίηση κάποιον δομών που μπορεί να χρειαστείτε. 

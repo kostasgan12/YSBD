@@ -40,43 +40,48 @@ HT_ErrorCode HT_CreateIndex(const char *filename, int buckets) {
 
     //BF_Block_Init(&block);
 
-//    CALL_BF(BF_AllocateBlock(fd, block));
-//    data = BF_Block_GetData(block);
+    CALL_BF(BF_AllocateBlock(fd, block));
+    data = BF_Block_GetData(block);
+
+    memcpy(data, "This Is A Hash File", sizeof("This Is A Hash File"));                         //1st block has Hash flag
 
 //    metadata meta;
 //    meta->hashFlag = "This Is A Hash File";
 //    meta->bucketSum = buckets;
 //    memcpy(data, meta, sizeof(meta));
 
-    int blockSum;
-    for(int i = 0; i < buckets; i++){                                                           //initiallizing buckets blocks. we already know how many we have initially
-        CALL_BF(BF_AllocateBlock(fd, block));
-        data = BF_Block_GetData(block);
-        CALL_BF(BF_GetBlockCounter(fd, &blockSum));
+    CALL_BF(BF_AllocateBlock(fd, block));                                                       //allocating space for 2nd block
+    data = BF_Block_GetData(block);
+    int hMap[buckets];                                                                          //creating a Hash Map
+    memcpy(data, hMap, sizeof(hMap));                                                           //copying Hash Map to 2nd block
 
-
-        metadata meta;
-
-        if( blockSum == 0 || blockSum == NULL ){
-//            CALL_BF(BF_AllocateBlock(fd, block));
-//            data = BF_Block_GetData(block);
-//            metadata meta;
-
-            meta->hashFlag = "This Is A Hash File";
-            meta->bucketSum = buckets;
-
-//            memcpy(data, meta, sizeof(meta));
-        }else if(blockSum > 1){
-
-            meta->hashFlag = "This Is A Bucket Index";
-            meta->bucketMaxLoad = MAX_RECORDS_SUM;
-            meta->bucketLoad = 0;
-        }
-        memcpy(data, meta, sizeof(meta));
-    }
-
-
-
+//////////////////////////////////////////////////////////////////////////////////////////////
+//    int blockSum;
+//    for(int i = 0; i < buckets; i++){                                                           //initiallizing buckets blocks. we already know how many we have initially
+//        CALL_BF(BF_AllocateBlock(fd, block));
+//        data = BF_Block_GetData(block);
+//        CALL_BF(BF_GetBlockCounter(fd, &blockSum));
+//
+//        metadata meta;
+//
+//        if( blockSum == 0 || blockSum == NULL ){
+////            CALL_BF(BF_AllocateBlock(fd, block));
+////            data = BF_Block_GetData(block);
+////            metadata meta;
+//
+//            meta->hashFlag = "This Is A Hash File";
+//            meta->bucketSum = buckets;
+//
+////            memcpy(data, meta, sizeof(meta));
+//        }else if(blockSum > 1){
+//
+//            meta->hashFlag = "This Is A Bucket Index";
+//            meta->bucketMaxLoad = MAX_RECORDS_SUM;
+//            meta->bucketLoad = 0;
+//        }
+//        memcpy(data, meta, sizeof(meta));
+//    }
+//////////////////////////////////////////////////////////////////////////////////////////////
     BF_Block_SetDirty(block);
     CALL_BF(BF_UnpinBlock(block));
     BF_Block_Destroy(&block);
