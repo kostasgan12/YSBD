@@ -15,19 +15,21 @@ typedef struct Record {
 
 typedef struct Open_File{
     char filename[100];
-    int indexdesc;
+    int filedesc;
+    int blockRoot;
 } Open_File;
 
-typedef struct hash_node {
-    int val, key;
-    hash_node* next;
-    hash_node* prev;
-} hash_node;
-
-typedef struct metadata{
-    char hashFlag[];
-    int bucketSum;
-}metadata;
+//typedef struct hash_node {
+//    int val, key;
+//    hash_node* next;
+//    hash_node* prev;
+//} hash_node;
+//
+//typedef struct metadata{
+//    char hashFlag[];
+//    int bucketSum;
+//}metadata;
+//
 /*
  * Η συνάρτηση HT_Init χρησιμοποιείται για την αρχικοποίηση κάποιον δομών που μπορεί να χρειαστείτε. 
  * Σε περίπτωση που εκτελεστεί επιτυχώς, επιστρέφεται HT_OK, ενώ σε διαφορετική περίπτωση κωδικός λάθους.
