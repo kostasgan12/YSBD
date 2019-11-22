@@ -13,6 +13,18 @@ typedef struct Record {
 	char city[20];
 } Record;
 
+typedef struct hash_node {
+    int val, key;
+    hash_node* next;
+    hash_node* prev;
+} hash_node;
+
+typedef struct metadata{
+    char hashFlag[];
+    int bucketSum;
+    int bucketLoad;
+    int bucketMaxLoad;
+}metadata;
 /*
  * Η συνάρτηση HT_Init χρησιμοποιείται για την αρχικοποίηση κάποιον δομών που μπορεί να χρειαστείτε. 
  * Σε περίπτωση που εκτελεστεί επιτυχώς, επιστρέφεται HT_OK, ενώ σε διαφορετική περίπτωση κωδικός λάθους.
