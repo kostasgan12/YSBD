@@ -13,6 +13,11 @@ typedef struct Record {
 	char city[20];
 } Record;
 
+typedef struct Open_File{
+    char filename[100];
+    int indexdesc;
+} Open_File;
+
 typedef struct hash_node {
     int val, key;
     hash_node* next;

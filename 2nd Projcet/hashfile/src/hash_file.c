@@ -17,6 +17,7 @@
   }                         \
 }
 
+Open_File openFiles[MAX_OPEN_FILES];
 
 int hash(int key, int buckets){
     return key%buckets;
@@ -44,6 +45,10 @@ HT_ErrorCode HT_CreateIndex(const char *filename, int buckets) {
     data = BF_Block_GetData(block);
 
     memcpy(data, "This Is A Hash File", sizeof("This Is A Hash File"));                         //1st block has Hash flag
+    data += sizeof("This Is A Hash File");
+
+    memcpy(data, buckets, sizeof(int));
+    data += sizeof(int);
 
 //    metadata meta;
 //    meta->hashFlag = "This Is A Hash File";
@@ -99,14 +104,25 @@ HT_ErrorCode HT_OpenIndex(const char *fileName, int *indexDesc){
     CALL_BF(BF_OpenFile(fileName, indexDesc));
 
     BF_Block_Init(&block);
+
     CALL_BF(BF_GetBlock(*indexDesc, 0, block));
     data = BF_Block_GetData(block);
 
-    if (memcmp(data, "This Is A Hash File", sizeof("This Is A Hash File"))){      // 0 means they're equal, and that the file we have opened is actually a Hash File
-        CALL_BF(BF_UnpinBlock(block));                                            // entering the if block means they aren't equal and that we have opened the wrong file
+    if (memcmp(data, "This Is A Hash File", sizeof("This Is A Hash File"))){            // 0 means they're equal, and that the file we have opened is actually a Hash File
+        CALL_BF(BF_UnpinBlock(block));                                                  // entering the if block means they aren't equal and that we have opened the wrong file
         BF_Block_Destroy(&block);
-        return HP_ERROR;
+        return HT_ERROR;
     }
+
+//    char fileArray[MAX_OPEN_FILES][30];                                                 //30 is the length of each row, so we have 30 spaces to enter info
+
+    int bucketSum;
+    data += sizeof("This Is A Hash File");                                              //move the data pointer to where the bucket sum is located
+    memcpy(bucketSum, data, sizeof(int));
+
+    int index = hash(indexDesc, bucketSum);
+    strcpy(openFiles[index].filename, fileName);
+    openFiles[index].indexdesc = indexDesc;
 
     CALL_BF(BF_UnpinBlock(block));
     BF_Block_Destroy(&block);
@@ -116,8 +132,16 @@ HT_ErrorCode HT_OpenIndex(const char *fileName, int *indexDesc){
 
 HT_ErrorCode HT_CloseFile(int indexDesc) {
   //insert code here
+    int index = hash(indexDesc);
 
-    CALL_BF(BF_CloseFile(indexDesc));                                              // closing our file
+    if(openFiles[index].indexdesc == NULL){
+        printf("!ERROR! File Not Found")
+        return HT_ERROR;
+    }
+
+
+    CALL_BF(BF_CloseFile(indexDesc));                                                       // closing our file
+    openFiles[index].indexdesc = NULL;
     return HT_OK;
 }
 
@@ -126,9 +150,46 @@ HT_ErrorCode HT_InsertEntry(int indexDesc, Record record) {
     BF_Block *block;
     BF_Block_Init(&block);
     char *data;
-    int recordCounter = 0;                                        // keeps track of the number of records kept in a block
+    int recordCounter = 0;                                                                  // keeps track of the number of records kept in a block
+    int blockSum = 0;
+
+    int bucketSum;
+    CALL_BF(BF_GetBlock(*indexDesc, 0, block));
+    data = BF_Block_GetData(block);
+    data += sizeof("This Is A Hash File");                                                  //move the data pointer to where the bucket sum is located
+    memcpy(bucketSum, data, sizeof(int));
+
+    CALL_BF(BF_GetBlockCounter(fileDesc, &blockSum));
+
+    if(blockSum == 2){                                                                      //this means the block is empty, because block #1 has metadata and #2 has openFiles array
+        CALL_BF(BF_AllocateBlock(indexDesc, block));
+        data = BF_Block_GetData(block);
+
+        memcpy(data, "H", sizeof("H"));                                                     //Index blocks start with H for Hash so we can recognise them
+        data += sizeof("H");
+
+        memcpy(data, hash(record.id, bucketSum), sizeof(int));                              //Copying the generated hash code so we know what hash code we find in this bucket
+        data += sizeof(int);
+
+        recordCounter = 1;
+        memcpy(data, &recordCounter, sizeof(int));
+        data += sizeof(int);
 
 
+        CALL_BF(BF_AllocateBlock(indexDesc, block));                                       //Generating a data block for our first record element
+        data = BF_Block_GetData(block);
+
+        memcpy(data, "D", sizeof("D"));                                                     //Data blocks start with D for Data so we can recognise them
+        data += sizeof("D");
+
+    }else{
+
+    }
+
+
+    BF_Block_SetDirty(block);
+    CALL_BF(BF_UnpinBlock(block));
+    BF_Block_Destroy(&block);
 
     return HT_OK;
 }
