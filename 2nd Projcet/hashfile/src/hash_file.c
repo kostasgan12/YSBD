@@ -76,6 +76,7 @@ HT_ErrorCode HT_CreateIndex(const char *filename, int buckets) {
     }
 
 
+
     BF_Block_SetDirty(block);
     CALL_BF(BF_UnpinBlock(block));
     BF_Block_Destroy(&block);
