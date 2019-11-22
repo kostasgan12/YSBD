@@ -54,6 +54,7 @@ HT_ErrorCode HT_CreateIndex(const char *filename, int buckets) {
         data = BF_Block_GetData(block);
         CALL_BF(BF_GetBlockCounter(fd, &blockSum));
 
+
         metadata meta;
 
         if( blockSum == 0 || blockSum == NULL ){
