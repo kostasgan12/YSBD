@@ -21,6 +21,7 @@ int AM_DestroyIndex(char *fileName) {
 }
 
 
+
 int AM_OpenIndex (char *fileName) {
   return AME_OK;
 }
