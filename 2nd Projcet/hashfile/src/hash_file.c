@@ -66,7 +66,7 @@ HT_ErrorCode HT_CreateIndex(const char *filename, int buckets) {
     int hMap[buckets];                                                                          //creating a Hash Map
     memcpy(data, hMap, sizeof(hMap));                                                           //copying Hash Map to 2nd block
 
-//////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////
 //    int blockSum;
 //    for(int i = 0; i < buckets; i++){                                                           //initiallizing buckets blocks. we already know how many we have initially
 //        CALL_BF(BF_AllocateBlock(fd, block));
