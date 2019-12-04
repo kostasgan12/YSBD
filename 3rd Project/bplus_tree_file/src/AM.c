@@ -8,8 +8,6 @@
 #include "bf.h"
 #include "defn.h"
 
-#define MAX_RECORDS_PER_BLOCK BF_BLOCK_SIZE/sizeof(Record)
-
 #define CALL_BF(call)         \
 {                             \
     BF_ErrorCode code = call; \
@@ -31,13 +29,21 @@ struct File {					//Πληροφορίες για το κάθε αρχείο π�
 
 };
 
+struct Scan {					//Πληροφορίες για το κάθε αρχείο που θα σκανάρουμε.
+    int scanDesc;
+    int fileDesc;
+    int block;					//Το μπλοκ του αρχείου που σκανάρουμε.(1ο,2ο,... κτλ.)
+    int record;					//Η εγγραφή του αρχείου που σκανάρουμε.(1η,2η,... κτλ.)
+    int opCode;					//Ο κωδικός του τελεστή σύγκρισης.
+};
 
 struct File filesArray[MAX_OPEN_FILES];
+struct Scan scanFilesArray[MAX_SCANS];
 
-int AM_Init() {
+void AM_Init() {
 
 
-    CALL_BF(BF_Init(LRU));
+    BF_Init(LRU);
 
     for (int i = 0; i < MAX_OPEN_FILES; i++){
         filesArray[i].fileDesc = -1;
@@ -48,7 +54,7 @@ int AM_Init() {
         filesArray[i].attrLength2 = -1;
     }
 
-    return 0;
+    return;
 }
 
 

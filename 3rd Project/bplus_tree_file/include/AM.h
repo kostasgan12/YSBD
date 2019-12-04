@@ -23,7 +23,7 @@ extern int AM_errno;
 #define MAX_SCANS 20
 
 
-int AM_Init( void );
+void AM_Init( void );
 
 
 int AM_CreateIndex(
