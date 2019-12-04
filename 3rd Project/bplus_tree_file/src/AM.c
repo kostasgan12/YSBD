@@ -37,6 +37,7 @@ int AM_InsertEntry(int fileDesc, void *value1, void *value2) {
 }
 
 
+
 int AM_OpenIndexScan(int fileDesc, int op, void *value) {
   return AME_OK;
 }
