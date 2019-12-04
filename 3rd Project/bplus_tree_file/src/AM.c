@@ -43,6 +43,7 @@ int AM_OpenIndexScan(int fileDesc, int op, void *value) {
 }
 
 
+
 void *AM_FindNextEntry(int scanDesc) {
 
 	
